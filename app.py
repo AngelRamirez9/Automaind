@@ -3,7 +3,7 @@ import http.client
 import json
 from datetime import datetime
 
-SUPABASE_URL = 'https://widtzsbgfpwztzfqaofe.supabase.co'
+SUPABASE_URL = 'widtzsbgfpwztzfqaofe.supabase.co'
 SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpZHR6c2JnZnB3enR6ZnFhb2ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcyNzE3NDEsImV4cCI6MjA0Mjg0Nzc0MX0.wzza60NYwlHdCeyVvO1WOLW2ASmGsOciKXy2rWB_lss'
 SUPABASE_TABLE = 'movimientos'
 
@@ -41,14 +41,15 @@ def guardar_datos():
     }
 
     conn = http.client.HTTPSConnection(SUPABASE_URL)
-    conn.request("POST", f"/rest/v1/{SUPABASE_TABLE}", body=json.dumps(datos), headers=headers)
+   
+    conn.request("POST", f"/rest/v1/{SUPABASE_TABLE}?on_conflict=telefono", body=json.dumps(datos), headers=headers)
     
     response = conn.getresponse()
     status = response.status
     response_text = response.read().decode()
 
     if status == 201:
-        print("Datos guardados en Supabase con éxito")
+        print("Datos guardados o actualizados en Supabase con éxito")
     else:
         print(f"Error al guardar los datos: {status} {response_text}")
 
