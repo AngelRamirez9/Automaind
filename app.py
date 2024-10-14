@@ -1,27 +1,25 @@
-import tkinter as tk
+from flask import Flask, render_template, request, jsonify
 import http.client
 import json
 from datetime import datetime
+
+app = Flask(__name__)
 
 SUPABASE_URL = 'widtzsbgfpwztzfqaofe.supabase.co'
 SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndpZHR6c2JnZnB3enR6ZnFhb2ZlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjcyNzE3NDEsImV4cCI6MjA0Mjg0Nzc0MX0.wzza60NYwlHdCeyVvO1WOLW2ASmGsOciKXy2rWB_lss'
 SUPABASE_TABLE = 'movimientos'
 
-root = tk.Tk()
-root.title("Formulario")
+@app.route('/')
+def formulario():
+    return render_template('formulario.html')
 
-nombre_var = tk.StringVar()
-telefono_var = tk.StringVar()
-correo_var = tk.StringVar()
-monto_var = tk.StringVar()
-lugarEnvio_var = tk.StringVar()
-
+@app.route('/guardar', methods=['POST'])
 def guardar_datos():
-    nombre = nombre_var.get()
-    telefono = telefono_var.get()
-    correo = correo_var.get()
-    monto = monto_var.get()
-    lugar = lugarEnvio_var.get()
+    nombre = request.form['nombre']
+    telefono = request.form['telefono']
+    correo = request.form['correo']
+    monto = request.form['monto']
+    lugar = request.form['lugarEnvio']
     
     fecha_hora = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -41,7 +39,6 @@ def guardar_datos():
     }
 
     conn = http.client.HTTPSConnection(SUPABASE_URL)
-   
     conn.request("POST", f"/rest/v1/{SUPABASE_TABLE}?on_conflict=telefono", body=json.dumps(datos), headers=headers)
     
     response = conn.getresponse()
@@ -49,31 +46,10 @@ def guardar_datos():
     response_text = response.read().decode()
 
     if status == 201:
-        print("Datos guardados o actualizados en Supabase con éxito")
+        return jsonify({'message': 'Datos guardados o actualizados en Supabase con éxito'})
     else:
-        print(f"Error al guardar los datos: {status} {response_text}")
+        return jsonify({'error': f"Error al guardar los datos: {status} {response_text}"}), 400
 
-    nombre_var.set("")
-    telefono_var.set("")
-    correo_var.set("")
-    monto_var.set("")
-    lugarEnvio_var.set("")
+if __name__ == '__main__':
+    app.run(debug=True)
 
-tk.Label(root, text="Nombre:").grid(row=0, column=0, padx=10, pady=5)
-tk.Entry(root, textvariable=nombre_var).grid(row=0, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Teléfono:").grid(row=1, column=0, padx=10, pady=5)
-tk.Entry(root, textvariable=telefono_var).grid(row=1, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Correo:").grid(row=2, column=0, padx=10, pady=5)
-tk.Entry(root, textvariable=correo_var).grid(row=2, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Monto:").grid(row=3, column=0, padx=10, pady=5)
-tk.Entry(root, textvariable=monto_var).grid(row=3, column=1, padx=10, pady=5)
-
-tk.Label(root, text="Lugar de Envío:").grid(row=4, column=0, padx=10, pady=5)
-tk.Entry(root, textvariable=lugarEnvio_var).grid(row=4, column=1, padx=10, pady=5)
-
-tk.Button(root, text="Guardar", command=guardar_datos).grid(row=5, column=0, columnspan=2, pady=10)
-
-root.mainloop()
