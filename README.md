@@ -1,3 +1,3 @@
 # Automaind
  entregas
- Creado por miguel angel ramirez
+ Creado por; Miguel Ángel Ramírez y Alejandro Delgado
